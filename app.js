@@ -35,121 +35,117 @@ document.addEventListener('DOMContentLoaded', () => {
             playClickSound();
             
             const alt = e.currentTarget.querySelector('img').alt;
+            console.log(`Action triggered: ${alt}`);
 
             // Transition logic for 1 Player
             if (alt === '1 Player') {
-                const titleScreen = document.getElementById('title-screen');
-                const gameScene = document.getElementById('game-scene');
-                
-                titleScreen.classList.add('hidden');
-                gameScene.classList.remove('hidden');
-                initGameCanvas();
+                startGameScene();
             }
         });
     });
-});
 
-/**
- * Sprite Animation Logic
- * Splits image into 4 quadrants and aligns them using a collective bounding box
- * to prevent jitter while centering the character visually.
- */
-async function initGameCanvas() {
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.src = '/webling_idle.png';
+    /**
+     * Game Scene Logic
+     */
+    function startGameScene() {
+        const titleScreen = document.getElementById('title-screen');
+        const gameScene = document.getElementById('game-scene');
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
 
-    await new Promise(resolve => img.onload = resolve);
+        titleScreen.classList.add('hidden');
+        gameScene.classList.remove('hidden');
 
-    const frameSize = 256;
-    const frames = [
-        { x: 0, y: 0 },
-        { x: 256, y: 0 },
-        { x: 0, y: 256 },
-        { x: 256, y: 256 }
-    ];
+        // Set internal resolution
+        canvas.width = 400;
+        canvas.height = 400;
 
-    // Offscreen canvas for pixel analysis
-    const offscreen = document.createElement('canvas');
-    offscreen.width = frameSize;
-    offscreen.height = frameSize;
-    const octx = offscreen.getContext('2d', { willReadFrequently: true });
+        const spriteSheet = new Image();
+        spriteSheet.src = '/webling_idle.png';
+        spriteSheet.onload = () => {
+            const frameWidth = 256;
+            const frameHeight = 256;
+            const frames = [];
 
-    // Detect collective bounds across all 4 frames to ensure stable alignment
-    let globalMinX = frameSize, globalMaxX = 0, globalMinY = frameSize, globalMaxY = 0;
-    let foundAnyAtAll = false;
+            // Process each of the 4 quadrants
+            const coords = [[0,0], [256,0], [0,256], [256,256]];
+            
+            coords.forEach(([sx, sy]) => {
+                // Temporary canvas to analyze pixels
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = frameWidth;
+                tempCanvas.height = frameHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(spriteSheet, sx, sy, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
+                
+                const imageData = tempCtx.getImageData(0, 0, frameWidth, frameHeight);
+                const data = imageData.data;
 
-    frames.forEach(frame => {
-        octx.clearRect(0, 0, frameSize, frameSize);
-        octx.drawImage(img, frame.x, frame.y, frameSize, frameSize, 0, 0, frameSize, frameSize);
-        const data = octx.getImageData(0, 0, frameSize, frameSize).data;
+                let minX = frameWidth, maxX = 0, minY = frameHeight, maxY = 0;
+                let hasPixels = false;
 
-        for (let y = 0; y < frameSize; y++) {
-            for (let x = 0; x < frameSize; x++) {
-                if (data[(y * frameSize + x) * 4 + 3] > 10) {
-                    if (x < globalMinX) globalMinX = x;
-                    if (x > globalMaxX) globalMaxX = x;
-                    if (y < globalMinY) globalMinY = y;
-                    if (y > globalMaxY) globalMaxY = y;
-                    foundAnyAtAll = true;
+                for (let y = 0; y < frameHeight; y++) {
+                    for (let x = 0; x < frameWidth; x++) {
+                        const alpha = data[(y * frameWidth + x) * 4 + 3];
+                        if (alpha > 10) { // Threshold for non-transparent
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                            hasPixels = true;
+                        }
+                    }
                 }
+
+                if (hasPixels) {
+                    frames.push({
+                        canvas: tempCanvas,
+                        bounds: { minX, maxX, minY, maxY, 
+                                  width: maxX - minX, 
+                                  height: maxY - minY,
+                                  centerX: (minX + maxX) / 2,
+                                  bottomY: maxY }
+                    });
+                }
+            });
+
+            // Animation loop
+            let currentFrameIdx = 0;
+            let lastTime = 0;
+            const frameDuration = 200; // ms per frame
+
+            function animate(timestamp) {
+                if (!lastTime) lastTime = timestamp;
+                const elapsed = timestamp - lastTime;
+
+                if (elapsed > frameDuration) {
+                    currentFrameIdx = (currentFrameIdx + 1) % frames.length;
+                    lastTime = timestamp;
+                }
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (frames.length > 0) {
+                    const frame = frames[currentFrameIdx];
+                    // Center frame.bounds.centerX at canvas.width / 2
+                    // Align frame.bounds.bottomY at canvas.height * 0.8 (ground level)
+                    const groundY = canvas.height * 0.8;
+                    const destX = (canvas.width / 2) - frame.bounds.centerX;
+                    const destY = groundY - frame.bounds.bottomY;
+
+                    ctx.drawImage(frame.canvas, destX, destY);
+                    
+                    // Optional: Draw a "shadow" or base line
+                    ctx.beginPath();
+                    ctx.ellipse(canvas.width/2, groundY, 40, 10, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(animate);
             }
-        }
-    });
 
-    // Default to center of frame if no pixels found
-    if (!foundAnyAtAll) {
-        globalMinX = 0; globalMaxX = frameSize; globalMinY = 0; globalMaxY = frameSize;
+            requestAnimationFrame(animate);
+        };
     }
-
-    // Calculate a consistent pivot point for all frames
-    // This uses the center-bottom of the character's total movement area
-    const charWidth = globalMaxX - globalMinX + 1;
-    const pivotX = globalMinX + (charWidth / 2);
-    const pivotY = globalMaxY;
-
-    // Resize visible canvas to fit viewport
-    const resize = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    let currentFrame = 0;
-    let lastTime = 0;
-    const fps = 4; // Animation speed
-
-    function loop(timestamp) {
-        if (!lastTime) lastTime = timestamp;
-        const elapsed = timestamp - lastTime;
-
-        if (elapsed > 1000 / fps) {
-            currentFrame = (currentFrame + 1) % frames.length;
-            lastTime = timestamp;
-        }
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const frame = frames[currentFrame];
-        const scale = 2.5; // Slightly larger for better visibility
-        
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-
-        // Apply the collective pivot so the body stays still while arms/eyes move
-        const destX = centerX - (pivotX * scale);
-        const destY = centerY - (pivotY * scale);
-
-        ctx.drawImage(
-            img,
-            frame.x, frame.y, frameSize, frameSize,
-            destX, destY, frameSize * scale, frameSize * scale
-        );
-
-        requestAnimationFrame(loop);
-    }
-
-    requestAnimationFrame(loop);
-}
+});
