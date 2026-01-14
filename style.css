@@ -37,14 +37,15 @@ body {
     max-width: 800px;
     display: flex;
     justify-content: center;
-    flex: 0 1 auto;
-    margin-bottom: -20px; /* Pulls content up */
+    flex: 0 0 auto;
+    margin-bottom: -80px; /* Aggressively pull content up to overlap logo transparency */
+    z-index: 1;
 }
 
 .main-logo {
     width: auto;
     max-width: 100%;
-    max-height: 55vh; /* Increased significantly for 2x effect while staying within viewport */
+    max-height: 45vh; /* Balanced size to ensure footer visibility */
     height: auto;
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
 }
@@ -55,18 +56,23 @@ body {
     flex-direction: column;
     gap: 0;
     align-items: center;
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     justify-content: center;
-    margin-top: -10px; /* Move buttons up */
+    margin-top: -20px;
+    z-index: 2;
 }
 
 .button-row {
     display: flex;
-    flex-wrap: nowrap; /* Keep rows single line to save height */
+    flex-wrap: nowrap; 
     justify-content: center;
     gap: 5px;
     width: 100%;
     padding: 0 5px;
+}
+
+.second-row {
+    margin-top: -60px; /* Overlap with the first row's transparency */
 }
 
 .game-btn {
@@ -86,15 +92,14 @@ body {
 
 .game-btn img {
     max-width: 100%;
-    max-height: 28vh; /* 2x increase from previous sizing, pushing the limit of the viewport */
+    max-height: 22vh; /* Adjusted size to fit within one screen height */
     width: auto;
     height: auto;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
 }
 
-/* Adjust button sizes for the second row if needed */
 .second-row .game-btn img {
-    max-height: 30vh; /* Further increased size */
+    max-height: 24vh;
 }
 
 .copyright-info {
