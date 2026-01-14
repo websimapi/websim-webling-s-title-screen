@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -26,22 +28,23 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding-top: 10px;
+    justify-content: flex-start; /* Aligns content to top to help move buttons up */
+    padding-top: 5px;
 }
 
 .logo-container {
-    width: 80%;
-    max-width: 500px;
+    width: 90%;
+    max-width: 800px;
     display: flex;
     justify-content: center;
     flex: 0 1 auto;
+    margin-bottom: -20px; /* Pulls content up */
 }
 
 .main-logo {
     width: auto;
     max-width: 100%;
-    max-height: 45vh; /* Increased significantly to approach requested 3x size while maintaining layout */
+    max-height: 55vh; /* Increased significantly for 2x effect while staying within viewport */
     height: auto;
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
 }
@@ -50,10 +53,11 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0;
     align-items: center;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     justify-content: center;
+    margin-top: -10px; /* Move buttons up */
 }
 
 .button-row {
@@ -82,7 +86,7 @@ body {
 
 .game-btn img {
     max-width: 100%;
-    max-height: 18vh; /* Increased from 12vh towards 24vh (2x) but capped to prevent overflow */
+    max-height: 28vh; /* 2x increase from previous sizing, pushing the limit of the viewport */
     width: auto;
     height: auto;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
@@ -90,28 +94,29 @@ body {
 
 /* Adjust button sizes for the second row if needed */
 .second-row .game-btn img {
-    max-height: 20vh; /* Increased from 14vh towards 28vh (2x) but capped to prevent overflow */
+    max-height: 30vh; /* Further increased size */
 }
 
 .copyright-info {
     text-align: center;
+    margin-top: auto; /* Push to bottom area above footer */
     margin-bottom: 5px;
     flex: 0 0 auto;
 }
 
 .blue-text {
     color: #00008B; /* Dark Blue */
-    font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', 'Helvetica Rounded', cursive, sans-serif;
+    font-family: 'Fredoka', cursive, sans-serif; /* High-quality bubbly font */
     text-shadow: 
         -1px -1px 0 #fff,  
          1px -1px 0 #fff,
         -1px  1px 0 #fff,
          1px  1px 0 #fff,
-         2px 2px 5px rgba(0,0,0,0.5); /* Bubbly effect with white outline and shadow */
-    font-weight: 900;
-    font-size: 1.1rem;
-    margin: 1px 0;
-    letter-spacing: 0.8px;
+         2px 2px 5px rgba(0,0,0,0.3); /* Bubbly effect with white outline */
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin: 2px 0;
+    letter-spacing: 0.5px;
 }
 
 .bottom-footer {
