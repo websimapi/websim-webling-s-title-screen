@@ -46,7 +46,7 @@ function startAnimation(ctx, canvas, img) {
         const targetX = canvas.width / 2;
         const targetY = canvas.height - 50; // Padding from bottom
 
-        const scale = 2; // Scale up for visibility
+        const scale = 4; // Scale up for better visibility
 
         // Calculate top-left position for drawing based on the feet position
         const drawX = targetX - (frame.feetX * scale);
