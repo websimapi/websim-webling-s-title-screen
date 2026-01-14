@@ -34,9 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             playClickSound();
             
-            // Just a visual log for now
             const alt = e.currentTarget.querySelector('img').alt;
             console.log(`Action triggered: ${alt}`);
+
+            // Transition logic for 1 Player
+            if (alt === '1 Player') {
+                const titleScreen = document.getElementById('title-screen');
+                const gameScene = document.getElementById('game-scene');
+                
+                titleScreen.classList.add('hidden');
+                gameScene.classList.remove('hidden');
+            }
         });
     });
 });

@@ -32,6 +32,35 @@ body {
     padding-top: 5px;
 }
 
+.hidden {
+    display: none !important;
+}
+
+.game-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.webling-sprite {
+    width: 256px;
+    height: 256px;
+    background-image: url('/webling_idle.png');
+    background-size: 512px 512px; /* 2x2 grid of 256x256 */
+    animation: webling-idle-anim 1s steps(1) infinite;
+    image-rendering: pixelated; /* Keep it crisp if small */
+}
+
+@keyframes webling-idle-anim {
+    0% { background-position: 0px 0px; }
+    25% { background-position: -256px 0px; }
+    50% { background-position: 0px -256px; }
+    75% { background-position: -256px -256px; }
+    100% { background-position: 0px 0px; }
+}
+
 .logo-container {
     width: 90%;
     max-width: 800px;

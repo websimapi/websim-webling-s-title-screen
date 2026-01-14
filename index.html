@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <div id="title-screen" class="container">
         <!-- Top Logo -->
         <header class="logo-container">
             <img src="/weblings_logo.png" alt="Webling's Logo" class="main-logo">
@@ -40,6 +40,11 @@
                 Promtinations By API
             </div>
         </footer>
+    </div>
+
+    <!-- Game Scene -->
+    <div id="game-scene" class="game-container hidden">
+        <div class="webling-sprite"></div>
     </div>
 
     <script type="module" src="app.js"></script>
