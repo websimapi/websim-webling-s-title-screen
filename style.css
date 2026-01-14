@@ -41,7 +41,7 @@ body {
 .main-logo {
     width: auto;
     max-width: 100%;
-    max-height: 20vh;
+    max-height: 45vh; /* Increased significantly to approach requested 3x size while maintaining layout */
     height: auto;
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
 }
@@ -50,7 +50,7 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 2px;
     align-items: center;
     flex: 1 1 auto;
     justify-content: center;
@@ -60,9 +60,9 @@ body {
     display: flex;
     flex-wrap: nowrap; /* Keep rows single line to save height */
     justify-content: center;
-    gap: 10px;
+    gap: 5px;
     width: 100%;
-    padding: 0 10px;
+    padding: 0 5px;
 }
 
 .game-btn {
@@ -82,7 +82,7 @@ body {
 
 .game-btn img {
     max-width: 100%;
-    max-height: 12vh;
+    max-height: 18vh; /* Increased from 12vh towards 24vh (2x) but capped to prevent overflow */
     width: auto;
     height: auto;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
@@ -90,22 +90,28 @@ body {
 
 /* Adjust button sizes for the second row if needed */
 .second-row .game-btn img {
-    max-height: 14vh;
+    max-height: 20vh; /* Increased from 14vh towards 28vh (2x) but capped to prevent overflow */
 }
 
 .copyright-info {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     flex: 0 0 auto;
 }
 
 .blue-text {
-    color: #00eeff; /* Bright readable blue against lava */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    font-weight: bold;
-    font-size: 0.9rem;
-    margin: 2px 0;
-    letter-spacing: 0.5px;
+    color: #00008B; /* Dark Blue */
+    font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', 'Helvetica Rounded', cursive, sans-serif;
+    text-shadow: 
+        -1px -1px 0 #fff,  
+         1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+         1px  1px 0 #fff,
+         2px 2px 5px rgba(0,0,0,0.5); /* Bubbly effect with white outline and shadow */
+    font-weight: 900;
+    font-size: 1.1rem;
+    margin: 1px 0;
+    letter-spacing: 0.8px;
 }
 
 .bottom-footer {
