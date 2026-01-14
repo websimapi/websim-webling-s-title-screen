@@ -50,8 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Advanced Sprite Animation Logic
- * Analyzes quadrants for transparency to find the actual character bounds
+ * Sprite Animation Logic
+ * Splits image into 4 quadrants and aligns them using a collective bounding box
+ * to prevent jitter while centering the character visually.
  */
 async function initGameCanvas() {
     const canvas = document.getElementById('game-canvas');
@@ -75,47 +76,38 @@ async function initGameCanvas() {
     offscreen.height = frameSize;
     const octx = offscreen.getContext('2d', { willReadFrequently: true });
 
-    const frameData = frames.map(frame => {
+    // Detect collective bounds across all 4 frames to ensure stable alignment
+    let globalMinX = frameSize, globalMaxX = 0, globalMinY = frameSize, globalMaxY = 0;
+    let foundAnyAtAll = false;
+
+    frames.forEach(frame => {
         octx.clearRect(0, 0, frameSize, frameSize);
         octx.drawImage(img, frame.x, frame.y, frameSize, frameSize, 0, 0, frameSize, frameSize);
-        const imageData = octx.getImageData(0, 0, frameSize, frameSize);
-        const data = imageData.data;
-
-        let minX = frameSize, maxX = 0, minY = frameSize, maxY = 0;
-        let foundAny = false;
+        const data = octx.getImageData(0, 0, frameSize, frameSize).data;
 
         for (let y = 0; y < frameSize; y++) {
             for (let x = 0; x < frameSize; x++) {
-                const alpha = data[(y * frameSize + x) * 4 + 3];
-                if (alpha > 10) { // Threshold for "non-transparent"
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
-                    foundAny = true;
+                if (data[(y * frameSize + x) * 4 + 3] > 10) {
+                    if (x < globalMinX) globalMinX = x;
+                    if (x > globalMaxX) globalMaxX = x;
+                    if (y < globalMinY) globalMinY = y;
+                    if (y > globalMaxY) globalMaxY = y;
+                    foundAnyAtAll = true;
                 }
             }
         }
-
-        if (!foundAny) return { x: frame.x, y: frame.y, width: frameSize, height: frameSize, pivotX: frameSize / 2, pivotY: frameSize };
-
-        const width = maxX - minX + 1;
-        const height = maxY - minY + 1;
-        // Center-Bottom pivot relative to the frame (0,0)
-        const pivotX = minX + (width / 2);
-        const pivotY = maxY;
-
-        return {
-            sourceX: frame.x,
-            sourceY: frame.y,
-            width,
-            height,
-            minX,
-            minY,
-            pivotX,
-            pivotY
-        };
     });
+
+    // Default to center of frame if no pixels found
+    if (!foundAnyAtAll) {
+        globalMinX = 0; globalMaxX = frameSize; globalMinY = 0; globalMaxY = frameSize;
+    }
+
+    // Calculate a consistent pivot point for all frames
+    // This uses the center-bottom of the character's total movement area
+    const charWidth = globalMaxX - globalMinX + 1;
+    const pivotX = globalMinX + (charWidth / 2);
+    const pivotY = globalMaxY;
 
     // Resize visible canvas to fit viewport
     const resize = () => {
@@ -134,26 +126,25 @@ async function initGameCanvas() {
         const elapsed = timestamp - lastTime;
 
         if (elapsed > 1000 / fps) {
-            currentFrame = (currentFrame + 1) % frameData.length;
+            currentFrame = (currentFrame + 1) % frames.length;
             lastTime = timestamp;
         }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const frame = frameData[currentFrame];
-        const scale = 2; // Make it a bit bigger in scene
+        const frame = frames[currentFrame];
+        const scale = 2.5; // Slightly larger for better visibility
         
-        // Draw the character anchored at the center of the screen
-        // We subtract the pivot points to ensure the "bottom-center" of the pixels is at (centerX, centerY)
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
-        const destX = centerX - (frame.pivotX * scale);
-        const destY = centerY - (frame.pivotY * scale);
+        // Apply the collective pivot so the body stays still while arms/eyes move
+        const destX = centerX - (pivotX * scale);
+        const destY = centerY - (pivotY * scale);
 
         ctx.drawImage(
             img,
-            frame.sourceX, frame.sourceY, frameSize, frameSize, // Use whole frame to avoid jitter if rect changes size
+            frame.x, frame.y, frameSize, frameSize,
             destX, destY, frameSize * scale, frameSize * scale
         );
 
